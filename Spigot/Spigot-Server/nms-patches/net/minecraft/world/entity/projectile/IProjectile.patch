@@ -1,0 +1,80 @@
+--- a/net/minecraft/world/entity/projectile/IProjectile.java
++++ b/net/minecraft/world/entity/projectile/IProjectile.java
+@@ -36,6 +36,10 @@
+ import net.minecraft.world.phys.MovingObjectPositionEntity;
+ import net.minecraft.world.phys.Vec3D;
+ 
++// CraftBukkit start
++import org.bukkit.projectiles.ProjectileSource;
++// CraftBukkit end
++
+ public abstract class IProjectile extends Entity implements TraceableEntity {
+ 
+     private static final boolean DEFAULT_LEFT_OWNER = false;
+@@ -49,6 +53,10 @@
+     @Nullable
+     private Entity lastDeflectedBy;
+ 
++    // CraftBukkit start
++    private boolean hitCancelled = false;
++    // CraftBukkit end
++
+     IProjectile(EntityTypes<? extends IProjectile> entitytypes, World world) {
+         super(entitytypes, world);
+     }
+@@ -58,6 +66,7 @@
+             this.ownerUUID = entity.getUUID();
+             this.cachedOwner = entity;
+         }
++        this.projectileSource = (entity != null && entity.getBukkitEntity() instanceof ProjectileSource) ? (ProjectileSource) entity.getBukkitEntity() : null; // CraftBukkit
+ 
+     }
+ 
+@@ -105,7 +114,7 @@
+ 
+     @Override
+     protected void readAdditionalSaveData(NBTTagCompound nbttagcompound) {
+-        this.setOwnerThroughUUID((UUID) nbttagcompound.read("Owner", UUIDUtil.CODEC).orElse((Object) null));
++        this.setOwnerThroughUUID((UUID) nbttagcompound.read("Owner", UUIDUtil.CODEC).orElse(null)); // CraftBukkit - decompile error
+         this.leftOwner = nbttagcompound.getBooleanOr("LeftOwner", false);
+         this.hasBeenShot = nbttagcompound.getBooleanOr("HasBeenShot", false);
+     }
+@@ -225,7 +234,7 @@
+ 
+     public static <T extends IProjectile> T spawnProjectile(T t0, WorldServer worldserver, ItemStack itemstack, Consumer<T> consumer) {
+         consumer.accept(t0);
+-        worldserver.addFreshEntity(t0);
++        if (worldserver.addFreshEntity(t0)) // CraftBukkit
+         t0.applyOnProjectileSpawned(worldserver, itemstack);
+         return t0;
+     }
+@@ -244,6 +253,17 @@
+ 
+     }
+ 
++    // CraftBukkit start - call projectile hit event
++    protected ProjectileDeflection preHitTargetOrDeflectSelf(MovingObjectPosition movingobjectposition) {
++        org.bukkit.event.entity.ProjectileHitEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callProjectileHitEvent(this, movingobjectposition);
++        this.hitCancelled = event != null && event.isCancelled();
++        if (movingobjectposition.getType() == MovingObjectPosition.EnumMovingObjectType.BLOCK || !this.hitCancelled) {
++            return this.hitTargetOrDeflectSelf(movingobjectposition);
++        }
++        return ProjectileDeflection.NONE;
++    }
++    // CraftBukkit end
++
+     protected ProjectileDeflection hitTargetOrDeflectSelf(MovingObjectPosition movingobjectposition) {
+         if (movingobjectposition.getType() == MovingObjectPosition.EnumMovingObjectType.ENTITY) {
+             MovingObjectPositionEntity movingobjectpositionentity = (MovingObjectPositionEntity) movingobjectposition;
+@@ -321,6 +341,11 @@
+     protected void onHitEntity(MovingObjectPositionEntity movingobjectpositionentity) {}
+ 
+     protected void onHitBlock(MovingObjectPositionBlock movingobjectpositionblock) {
++        // CraftBukkit start - cancellable hit event
++        if (hitCancelled) {
++            return;
++        }
++        // CraftBukkit end
+         IBlockData iblockdata = this.level().getBlockState(movingobjectpositionblock.getBlockPos());
+ 
+         iblockdata.onProjectileHit(this.level(), iblockdata, movingobjectpositionblock, this);

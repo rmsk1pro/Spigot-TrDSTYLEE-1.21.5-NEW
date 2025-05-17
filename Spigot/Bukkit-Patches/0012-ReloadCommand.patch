@@ -1,0 +1,36 @@
+From 97fe8bf41af5c8066fe5b576ee981aa92a5123af Mon Sep 17 00:00:00 2001
+From: Rafael Mendes Siqueira <rms-aps@hotmail.com>
+Date: Sat, 17 May 2025 11:36:35 -0300
+Subject: [PATCH] ReloadCommand
+
+
+diff --git a/src/main/java/org/bukkit/command/defaults/ReloadCommand.java b/src/main/java/org/bukkit/command/defaults/ReloadCommand.java
+index 50cc311b..09a7b8be 100644
+--- a/src/main/java/org/bukkit/command/defaults/ReloadCommand.java
++++ b/src/main/java/org/bukkit/command/defaults/ReloadCommand.java
+@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
+ public class ReloadCommand extends BukkitCommand {
+     public ReloadCommand(@NotNull String name) {
+         super(name);
+-        this.description = "Reloads the server configuration and plugins";
++        this.description = "Recarrega a configuração do servidor e plugins";
+         this.usageMessage = "/reload";
+         this.setPermission("bukkit.command.reload");
+         this.setAliases(Arrays.asList("rl"));
+@@ -22,10 +22,10 @@ public class ReloadCommand extends BukkitCommand {
+     public boolean execute(@NotNull CommandSender sender, @NotNull String currentAlias, @NotNull String[] args) {
+         if (!testPermission(sender)) return true;
+ 
+-        Command.broadcastCommandMessage(sender, ChatColor.RED + "Please note that this command is not supported and may cause issues when using some plugins.");
+-        Command.broadcastCommandMessage(sender, ChatColor.RED + "If you encounter any issues please use the /stop command to restart your server.");
++        Command.broadcastCommandMessage(sender, ChatColor.RED + "Esse comando pode ocorrer bugs nos seus plugins.");
++        Command.broadcastCommandMessage(sender, ChatColor.RED + "Qualquer erro use /stop...");
+         Bukkit.reload();
+-        Command.broadcastCommandMessage(sender, ChatColor.GREEN + "Reload complete.");
++        Command.broadcastCommandMessage(sender, ChatColor.GREEN + "Reload completado.");
+ 
+         return true;
+     }
+-- 
+2.49.0.windows.1
+

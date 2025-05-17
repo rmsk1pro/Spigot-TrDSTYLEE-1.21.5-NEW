@@ -1,0 +1,100 @@
+--- a/net/minecraft/world/entity/item/EntityFallingBlock.java
++++ b/net/minecraft/world/entity/item/EntityFallingBlock.java
+@@ -52,6 +52,11 @@
+ import net.minecraft.world.phys.Vec3D;
+ import org.slf4j.Logger;
+ 
++// CraftBukkit start;
++import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.event.entity.EntityRemoveEvent;
++// CraftBukkit end
++
+ public class EntityFallingBlock extends Entity {
+ 
+     private static final Logger LOGGER = LogUtils.getLogger();
+@@ -96,10 +101,17 @@
+     }
+ 
+     public static EntityFallingBlock fall(World world, BlockPosition blockposition, IBlockData iblockdata) {
++        // CraftBukkit start
++        return fall(world, blockposition, iblockdata, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.DEFAULT);
++    }
++
++    public static EntityFallingBlock fall(World world, BlockPosition blockposition, IBlockData iblockdata, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason spawnReason) {
++        // CraftBukkit end
+         EntityFallingBlock entityfallingblock = new EntityFallingBlock(world, (double) blockposition.getX() + 0.5D, (double) blockposition.getY(), (double) blockposition.getZ() + 0.5D, iblockdata.hasProperty(BlockProperties.WATERLOGGED) ? (IBlockData) iblockdata.setValue(BlockProperties.WATERLOGGED, false) : iblockdata);
++        if (!CraftEventFactory.callEntityChangeBlockEvent(entityfallingblock, blockposition, iblockdata.getFluidState().createLegacyBlock())) return entityfallingblock; // CraftBukkit
+ 
+         world.setBlock(blockposition, iblockdata.getFluidState().createLegacyBlock(), 3);
+-        world.addFreshEntity(entityfallingblock);
++        world.addFreshEntity(entityfallingblock, spawnReason); // CraftBukkit
+         return entityfallingblock;
+     }
+ 
+@@ -148,7 +160,7 @@
+     @Override
+     public void tick() {
+         if (this.blockState.isAir()) {
+-            this.discard();
++            this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
+         } else {
+             Block block = this.blockState.getBlock();
+ 
+@@ -183,7 +195,7 @@
+                                 this.spawnAtLocation(worldserver, (IMaterial) block);
+                             }
+ 
+-                            this.discard();
++                            this.discard(EntityRemoveEvent.Cause.DROP); // CraftBukkit - add Bukkit remove cause
+                         }
+                     } else {
+                         IBlockData iblockdata = this.level().getBlockState(blockposition);
+@@ -200,9 +212,15 @@
+                                         this.blockState = (IBlockData) this.blockState.setValue(BlockProperties.WATERLOGGED, true);
+                                     }
+ 
++                                    // CraftBukkit start
++                                    if (!CraftEventFactory.callEntityChangeBlockEvent(this, blockposition, this.blockState)) {
++                                        this.discard(EntityRemoveEvent.Cause.DESPAWN); // SPIGOT-6586 called before the event in previous versions
++                                        return;
++                                    }
++                                    // CraftBukkit end
+                                     if (this.level().setBlock(blockposition, this.blockState, 3)) {
+                                         ((WorldServer) this.level()).getChunkSource().chunkMap.broadcast(this, new PacketPlayOutBlockChange(blockposition, this.level().getBlockState(blockposition)));
+-                                        this.discard();
++                                        this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
+                                         if (block instanceof Fallable) {
+                                             ((Fallable) block).onLand(this.level(), blockposition, this.blockState, iblockdata, this);
+                                         }
+@@ -227,19 +245,19 @@
+                                             }
+                                         }
+                                     } else if (this.dropItem && worldserver.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+-                                        this.discard();
++                                        this.discard(EntityRemoveEvent.Cause.DROP); // CraftBukkit - add Bukkit remove cause
+                                         this.callOnBrokenAfterFall(block, blockposition);
+                                         this.spawnAtLocation(worldserver, (IMaterial) block);
+                                     }
+                                 } else {
+-                                    this.discard();
++                                    this.discard(EntityRemoveEvent.Cause.DROP); // CraftBukkit - add Bukkit remove cause
+                                     if (this.dropItem && worldserver.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+                                         this.callOnBrokenAfterFall(block, blockposition);
+                                         this.spawnAtLocation(worldserver, (IMaterial) block);
+                                     }
+                                 }
+                             } else {
+-                                this.discard();
++                                this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
+                                 this.callOnBrokenAfterFall(block, blockposition);
+                             }
+                         }
+@@ -332,7 +350,7 @@
+         this.fallDamagePerDistance = nbttagcompound.getFloatOr("FallHurtAmount", 0.0F);
+         this.fallDamageMax = nbttagcompound.getIntOr("FallHurtMax", 40);
+         this.dropItem = nbttagcompound.getBooleanOr("DropItem", true);
+-        this.blockData = (NBTTagCompound) nbttagcompound.getCompound("TileEntityData").map(NBTTagCompound::copy).orElse((Object) null);
++        this.blockData = (NBTTagCompound) nbttagcompound.getCompound("TileEntityData").map(NBTTagCompound::copy).orElse(null); // CraftBukkit - decompile error
+         this.cancelDrop = nbttagcompound.getBooleanOr("CancelDrop", false);
+     }
+ 

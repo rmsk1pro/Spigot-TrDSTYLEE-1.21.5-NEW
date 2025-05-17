@@ -1,0 +1,34 @@
+--- a/net/minecraft/commands/arguments/selector/EntitySelector.java
++++ b/net/minecraft/commands/arguments/selector/EntitySelector.java
+@@ -92,7 +92,7 @@
+     }
+ 
+     private void checkPermissions(CommandListenerWrapper commandlistenerwrapper) throws CommandSyntaxException {
+-        if (this.usesSelector && !commandlistenerwrapper.hasPermission(2)) {
++        if (this.usesSelector && !commandlistenerwrapper.hasPermission(2, "minecraft.command.selector")) { // CraftBukkit
+             throw ArgumentEntity.ERROR_SELECTORS_NOT_ALLOWED.create();
+         }
+     }
+@@ -254,19 +254,19 @@
+ 
+             list1.addAll(this.contextFreePredicates);
+             if (flag) {
+-                list1.add((Predicate) (entity) -> {
++                list1.add((entity) -> { // CraftBukkit - decompile error
+                     return entity.getType().isEnabled(featureflagset);
+                 });
+             }
+ 
+             if (flag1) {
+-                list1.add((Predicate) (entity) -> {
++                list1.add((entity) -> { // CraftBukkit - decompile error
+                     return axisalignedbb.intersects(entity.getBoundingBox());
+                 });
+             }
+ 
+             if (flag2) {
+-                list1.add((Predicate) (entity) -> {
++                list1.add((entity) -> { // CraftBukkit - decompile error
+                     return this.range.matchesSqr(entity.distanceToSqr(vec3d));
+                 });
+             }

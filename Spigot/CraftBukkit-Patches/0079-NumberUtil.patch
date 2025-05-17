@@ -1,0 +1,36 @@
+From 79df991d351a42baf87b493f94c99d911cffe027 Mon Sep 17 00:00:00 2001
+From: Rafael Mendes Siqueira <rms-aps@hotmail.com>
+Date: Sat, 17 May 2025 10:59:02 -0300
+Subject: [PATCH] NumberUtil
+
+
+diff --git a/src/main/java/org/spigotmc/NumberUtil.java b/src/main/java/org/spigotmc/NumberUtil.java
+index 5de9eb514..0903701a3 100644
+--- a/src/main/java/org/spigotmc/NumberUtil.java
++++ b/src/main/java/org/spigotmc/NumberUtil.java
+@@ -1,4 +1,22 @@
+ package org.spigotmc;
+ 
+ public class NumberUtil {
++
++    public static String getProgressBar(double current, double max, int totalBars, String symbol, String completedColor, String notCompletedColor) {
++        float percent = (float) current / (float) max;
++        int progressBars = (int) ((float) totalBars * percent);
++        int leftOver = totalBars - progressBars;
++        StringBuilder stringBuilder = new StringBuilder();
++
++        stringBuilder.append(TXT.parse(completedColor));
++
++        int index;
++        for (index = 0; index < progressBars; ++index) stringBuilder.append(symbol);
++
++        stringBuilder.append(TXT.parse(notCompletedColor));
++
++        for (index = 0; index < leftOver; ++index) stringBuilder.append(symbol);
++
++        return stringBuilder.toString();
++    }
+ }
+-- 
+2.49.0.windows.1
+

@@ -1,0 +1,114 @@
+From c73b121817368f746f683a4163c16b2d2524a937 Mon Sep 17 00:00:00 2001
+From: Rafael Mendes Siqueira <rms-aps@hotmail.com>
+Date: Sat, 17 May 2025 11:36:51 -0300
+Subject: [PATCH] VersionCommand
+
+
+diff --git a/src/main/java/org/bukkit/command/defaults/VersionCommand.java b/src/main/java/org/bukkit/command/defaults/VersionCommand.java
+index 263208d3..e708fae0 100644
+--- a/src/main/java/org/bukkit/command/defaults/VersionCommand.java
++++ b/src/main/java/org/bukkit/command/defaults/VersionCommand.java
+@@ -33,7 +33,7 @@ public class VersionCommand extends BukkitCommand {
+         this.description = "Gets the version of this server including any plugins in use";
+         this.usageMessage = "/version [plugin name]";
+         this.setPermission("bukkit.command.version");
+-        this.setAliases(Arrays.asList("ver", "about"));
++        this.setAliases(Arrays.asList("ver", "versao"));
+     }
+ 
+     @Override
+@@ -41,7 +41,8 @@ public class VersionCommand extends BukkitCommand {
+         if (!testPermission(sender)) return true;
+ 
+         if (args.length == 0) {
+-            sender.sendMessage("This server is running " + Bukkit.getName() + " version " + Bukkit.getVersion() + " (Implementing API version " + Bukkit.getBukkitVersion() + ")");
++            sender.sendMessage(" §aEste servidor está executando com spigot 1.21.5 - §fTrDSTYLEE");
++            sender.sendMessage(" §a(Implementando a versão da API spigot 1.21.5  - §fTrDSTYLEE");
+             sendVersion(sender);
+         } else {
+             StringBuilder name = new StringBuilder();
+@@ -71,8 +72,8 @@ public class VersionCommand extends BukkitCommand {
+             }
+ 
+             if (!found) {
+-                sender.sendMessage("This server is not running any plugin by that name.");
+-                sender.sendMessage("Use /plugins to get a list of plugins.");
++                sender.sendMessage(" §aEste servidor não está executando nenhum plugin com esse nome.");
++                sender.sendMessage(" §aUse /plugins para ver a lista de plugins.");
+             }
+         }
+         return true;
+@@ -92,9 +93,9 @@ public class VersionCommand extends BukkitCommand {
+ 
+         if (!desc.getAuthors().isEmpty()) {
+             if (desc.getAuthors().size() == 1) {
+-                sender.sendMessage("Author: " + getNameList(desc.getAuthors()));
++                sender.sendMessage("Author: editado por TrDSTYLEE: ");
+             } else {
+-                sender.sendMessage("Authors: " + getNameList(desc.getAuthors()));
++                sender.sendMessage("Author: editado por TrDSTYLEE:  ");
+             }
+         }
+ 
+@@ -169,7 +170,9 @@ public class VersionCommand extends BukkitCommand {
+                 return;
+             }
+             versionWaiters.add(sender);
+-            sender.sendMessage("Checking version, please wait...");
++            sender.sendMessage("");
++            sender.sendMessage(" §aVerificando a versão, por favor aguarde ...");
++            sender.sendMessage("");
+             if (!versionTaskStarted) {
+                 versionTaskStarted = true;
+                 new Thread(new Runnable() {
+@@ -188,33 +191,34 @@ public class VersionCommand extends BukkitCommand {
+     private void obtainVersion() {
+         String version = Bukkit.getVersion();
+         if (version == null) version = "Custom";
+-        String[] parts = version.substring(0, version.indexOf(' ')).split("-");
+-        if (parts.length == 4) {
+-            int cbVersions = getDistance("craftbukkit", parts[3]);
+-            int spigotVersions = getDistance("spigot", parts[2]);
++        if (version.startsWith("git-Spigot-TrDSTYLEE")) {
++            String[] parts = version.substring("git-Spigot-TrDSTYLEE".length()).split("-");
++            int cbVersions = getDistance("craftbukkit", parts[1].substring(0, parts[1].indexOf(' ')));
++            int spigotVersions = getDistance("spigot", parts[0]);
+             if (cbVersions == -1 || spigotVersions == -1) {
+-                setVersionMessage("Error obtaining version information");
++                setVersionMessage("Erro ao obter informações sobre a versão");
+             } else {
+                 if (cbVersions == 0 && spigotVersions == 0) {
+-                    setVersionMessage("You are running the latest version");
++                    setVersionMessage(" §aVocê está executando a versão mais recente");
+                 } else {
+-                    setVersionMessage("You are " + (cbVersions + spigotVersions) + " version(s) behind");
++                    setVersionMessage("Você está " + cbVersions + " versão(ões) desatualizado(s)");
+                 }
+             }
+ 
+-        } else if (parts.length == 3) {
+-            int cbVersions = getDistance("craftbukkit", parts[2]);
++        } else if (version.startsWith("git-Bukkit-TrDSTYLEE")) {
++            version = version.substring("git-Bukkit-TrDSTYLEE".length());
++            int cbVersions = getDistance("craftbukkit", version.substring(0, version.indexOf(' ')));
+             if (cbVersions == -1) {
+-                setVersionMessage("Error obtaining version information");
++                setVersionMessage("Erro ao obter informações sobre a versão");
+             } else {
+                 if (cbVersions == 0) {
+-                    setVersionMessage("You are running the latest version");
++                    setVersionMessage("Você está executando a versão mais recente");
+                 } else {
+-                    setVersionMessage("You are " + cbVersions + " version(s) behind");
++                    setVersionMessage("Você está " + cbVersions + " versão(ões) desatualizado(s)");
+                 }
+             }
+         } else {
+-            setVersionMessage("Unknown version, custom build?");
++            setVersionMessage(" §cVersão exclusiva §fTrDSTYLEE -§b§l TrCraft NetWork");
+         }
+     }
+ 
+-- 
+2.49.0.windows.1
+

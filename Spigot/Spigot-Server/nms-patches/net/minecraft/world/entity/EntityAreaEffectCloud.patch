@@ -1,0 +1,99 @@
+--- a/net/minecraft/world/entity/EntityAreaEffectCloud.java
++++ b/net/minecraft/world/entity/EntityAreaEffectCloud.java
+@@ -32,6 +32,12 @@
+ import net.minecraft.world.level.World;
+ import net.minecraft.world.level.material.EnumPistonReaction;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.entity.CraftLivingEntity;
++import org.bukkit.entity.LivingEntity;
++import org.bukkit.event.entity.EntityRemoveEvent;
++// CraftBukkit end
++
+ public class EntityAreaEffectCloud extends Entity implements TraceableEntity {
+ 
+     private static final int TIME_BETWEEN_APPLICATIONS = 5;
+@@ -217,7 +223,7 @@
+ 
+     private void serverTick(WorldServer worldserver) {
+         if (this.duration != -1 && this.tickCount >= this.waitTime + this.duration) {
+-            this.discard();
++            this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
+         } else {
+             boolean flag = this.isWaiting();
+             boolean flag1 = this.tickCount < this.waitTime;
+@@ -232,7 +238,7 @@
+                 if (this.radiusPerTick != 0.0F) {
+                     f += this.radiusPerTick;
+                     if (f < 0.5F) {
+-                        this.discard();
++                        this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
+                         return;
+                     }
+ 
+@@ -254,9 +260,10 @@
+                         List<EntityLiving> list1 = this.level().<EntityLiving>getEntitiesOfClass(EntityLiving.class, this.getBoundingBox());
+ 
+                         if (!list1.isEmpty()) {
++                            List<LivingEntity> entities = new java.util.ArrayList<LivingEntity>(); // CraftBukkit
+                             for (EntityLiving entityliving : list1) {
+                                 if (!this.victims.containsKey(entityliving) && entityliving.isAffectedByPotions()) {
+-                                    Stream stream = list.stream();
++                                    Stream<MobEffect> stream = list.stream(); // CraftBukkit - decompile error
+ 
+                                     Objects.requireNonNull(entityliving);
+                                     if (!stream.noneMatch(entityliving::canBeAffected)) {
+@@ -265,20 +272,33 @@
+                                         double d2 = d0 * d0 + d1 * d1;
+ 
+                                         if (d2 <= (double) (f * f)) {
++                                            // CraftBukkit start
++                                            entities.add((LivingEntity) entityliving.getBukkitEntity());
++                                        }
++                                    }
++                                }
++                            }
++                            {
++                                org.bukkit.event.entity.AreaEffectCloudApplyEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callAreaEffectCloudApplyEvent(this, entities);
++                                if (!event.isCancelled()) {
++                                    for (LivingEntity entity : event.getAffectedEntities()) {
++                                        if (entity instanceof CraftLivingEntity) {
++                                            EntityLiving entityliving = ((CraftLivingEntity) entity).getHandle();
++                                            // CraftBukkit end
+                                             this.victims.put(entityliving, this.tickCount + this.reapplicationDelay);
+ 
+                                             for (MobEffect mobeffect : list) {
+                                                 if (((MobEffectList) mobeffect.getEffect().value()).isInstantenous()) {
+                                                     ((MobEffectList) mobeffect.getEffect().value()).applyInstantenousEffect(worldserver, this, this.getOwner(), entityliving, mobeffect.getAmplifier(), 0.5D);
+                                                 } else {
+-                                                    entityliving.addEffect(new MobEffect(mobeffect), this);
++                                                    entityliving.addEffect(new MobEffect(mobeffect), this, org.bukkit.event.entity.EntityPotionEffectEvent.Cause.AREA_EFFECT_CLOUD); // CraftBukkit
+                                                 }
+                                             }
+ 
+                                             if (this.radiusOnUse != 0.0F) {
+                                                 f += this.radiusOnUse;
+                                                 if (f < 0.5F) {
+-                                                    this.discard();
++                                                    this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
+                                                     return;
+                                                 }
+ 
+@@ -288,7 +308,7 @@
+                                             if (this.durationOnUse != 0 && this.duration != -1) {
+                                                 this.duration += this.durationOnUse;
+                                                 if (this.duration <= 0) {
+-                                                    this.discard();
++                                                    this.discard(EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
+                                                     return;
+                                                 }
+                                             }
+@@ -381,7 +401,7 @@
+         this.radiusOnUse = nbttagcompound.getFloatOr("RadiusOnUse", 0.0F);
+         this.radiusPerTick = nbttagcompound.getFloatOr("RadiusPerTick", 0.0F);
+         this.setRadius(nbttagcompound.getFloatOr("Radius", 3.0F));
+-        this.ownerUUID = (UUID) nbttagcompound.read("Owner", UUIDUtil.CODEC).orElse((Object) null);
++        this.ownerUUID = (UUID) nbttagcompound.read("Owner", UUIDUtil.CODEC).orElse(null); // CraftBukkit - decompile error
+         RegistryOps<NBTBase> registryops = this.registryAccess().<NBTBase>createSerializationContext(DynamicOpsNBT.INSTANCE);
+ 
+         this.setParticle((ParticleParam) nbttagcompound.read("Particle", Particles.CODEC, registryops).orElse(EntityAreaEffectCloud.DEFAULT_PARTICLE));

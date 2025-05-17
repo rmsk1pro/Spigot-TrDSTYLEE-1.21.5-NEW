@@ -1,0 +1,31 @@
+--- a/net/minecraft/world/level/block/entity/TileEntityEndGateway.java
++++ b/net/minecraft/world/level/block/entity/TileEntityEndGateway.java
+@@ -25,6 +25,10 @@
+ import net.minecraft.world.phys.Vec3D;
+ import org.slf4j.Logger;
+ 
++// CraftBukkit start
++import net.minecraft.world.level.dimension.WorldDimension;
++// CraftBukkit end
++
+ public class TileEntityEndGateway extends TileEntityEnderPortal {
+ 
+     private static final Logger LOGGER = LogUtils.getLogger();
+@@ -60,7 +64,7 @@
+     protected void loadAdditional(NBTTagCompound nbttagcompound, HolderLookup.a holderlookup_a) {
+         super.loadAdditional(nbttagcompound, holderlookup_a);
+         this.age = nbttagcompound.getLongOr("Age", 0L);
+-        this.exitPortal = (BlockPosition) nbttagcompound.read("exit_portal", BlockPosition.CODEC).filter(World::isInSpawnableBounds).orElse((Object) null);
++        this.exitPortal = (BlockPosition) nbttagcompound.read("exit_portal", BlockPosition.CODEC).filter(World::isInSpawnableBounds).orElse(null); // CraftBukkit - decompile error
+         this.exactTeleport = nbttagcompound.getBooleanOr("ExactTeleport", false);
+     }
+ 
+@@ -136,7 +140,7 @@
+ 
+     @Nullable
+     public Vec3D getPortalPosition(WorldServer worldserver, BlockPosition blockposition) {
+-        if (this.exitPortal == null && worldserver.dimension() == World.END) {
++        if (this.exitPortal == null && worldserver.getTypeKey() == WorldDimension.END) { // CraftBukkit - work in alternate worlds
+             BlockPosition blockposition1 = findOrCreateValidTeleportPos(worldserver, blockposition);
+ 
+             blockposition1 = blockposition1.above(10);

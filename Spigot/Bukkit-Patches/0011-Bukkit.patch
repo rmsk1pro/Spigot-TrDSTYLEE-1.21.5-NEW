@@ -1,0 +1,29 @@
+From 297222a12d486f07cdd414d97c379b409c79b9a8 Mon Sep 17 00:00:00 2001
+From: Rafael Mendes Siqueira <rms-aps@hotmail.com>
+Date: Sat, 17 May 2025 11:36:06 -0300
+Subject: [PATCH] Bukkit
+
+
+diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
+index 050ce9bd..f894812a 100644
+--- a/src/main/java/org/bukkit/Bukkit.java
++++ b/src/main/java/org/bukkit/Bukkit.java
+@@ -97,7 +97,7 @@ public final class Bukkit {
+         }
+ 
+         Bukkit.server = server;
+-        server.getLogger().info("This server is running " + getName() + " version " + getVersion() + " (Implementing API version " + getBukkitVersion() + ")");
++        server.getLogger().info("Este servidor esta executando versao spigot-TrDSTYLEE 1.21.5");
+     }
+ 
+     /**
+@@ -2195,4 +2195,4 @@ public final class Bukkit {
+     public static Server.Spigot spigot() {
+         return server.spigot();
+     }
+-}
++}
+\ No newline at end of file
+-- 
+2.49.0.windows.1
+
