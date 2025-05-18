@@ -31,15 +31,17 @@ public void onEnderChestOpen(PlayerInteractEvent event) {
         event.getClickedBlock() != null &&
         event.getClickedBlock().getType() == Material.ENDER_CHEST) {
 
-        event.setCancelled(true); // Cancela o comportamento padrão do baú
+        // Cancela a abertura padrão do baú
+        event.setCancelled(true);
 
         Player player = event.getPlayer();
-        Inventory realEnderChest = player.getEnderChest(); // Acesso direto ao baú do jogador
+        Inventory realEnderChest = player.getEnderChest(); // Ender Chest real do jogador
 
         // Toca o som de abertura do Ender Chest
         player.playSound(player.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1.0f, 1.0f);
 
-        // Abre o inventário real (com 54 slots, se já modificado na source)
+        // Abre o inventário real do Ender Chest
+        // OBS: Se a source já estiver modificada, pode ter 54 slots
         player.openInventory(realEnderChest);
     }
 }
@@ -53,3 +55,4 @@ public void onEnderChestClose(InventoryCloseEvent event) {
         player.playSound(player.getLocation(), Sound.BLOCK_ENDER_CHEST_CLOSE, 1.0f, 1.0f);
     }
 }
+
