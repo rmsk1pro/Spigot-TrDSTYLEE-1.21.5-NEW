@@ -25,6 +25,12 @@ Foram feitas alterações na source do Spigot, mas o NNS do cliente ainda não f
 No futuro, será substituído por um sistema próprio de inventário, integrado diretamente à source do Spigot modificada.
 Essa funcionalidade já está em desenvolvimento e, quando finalizada, não dependerá mais de plugins externos para funcionar.
 
+## 📦 Código Temporário – Abertura do Ender Chest Real (Spigot)
+
+⚠️ **Aviso:** Este código é **temporário** e acessa diretamente o **Ender Chest real do jogador** utilizando a API do Spigot.  
+No futuro, será substituído por um sistema de inventário próprio, já em desenvolvimento na **source modificada do Spigot**, eliminando a necessidade de plugins.
+
+```java
 @EventHandler
 public void onEnderChestOpen(PlayerInteractEvent event) {
     if (event.getAction() == Action.RIGHT_CLICK_BLOCK &&
@@ -55,4 +61,5 @@ public void onEnderChestClose(InventoryCloseEvent event) {
         player.playSound(player.getLocation(), Sound.BLOCK_ENDER_CHEST_CLOSE, 1.0f, 1.0f);
     }
 }
+´´´
 
